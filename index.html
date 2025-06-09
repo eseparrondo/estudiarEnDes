@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -22,7 +21,7 @@
             box-sizing: border-box;
         }
 
-        #quiz-container {
+        .container {
             background-color: white;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -36,6 +35,11 @@
             margin-bottom: 20px;
         }
 
+        h2 {
+           font-size: 1.6rem;
+           margin-bottom: 25px;
+        }
+
         #question-text {
             font-size: 1.4rem;
             font-weight: 700;
@@ -47,8 +51,8 @@
             color: #666;
             margin-bottom: 25px;
         }
-
-        .btn-option {
+        
+        .btn {
             display: block;
             width: 100%;
             background-color: #e7e7e7;
@@ -60,33 +64,39 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-
-        .btn-option:hover {
+        
+        .btn:hover {
             background-color: #dcdcdc;
             border-color: #c0c0c0;
         }
         
-        .btn-option.correct {
+        #mixed-test-button {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: white;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .btn.correct {
             background-color: #d4edda; /* Verde */
             border-color: #c3e6cb;
             color: #155724;
             font-weight: bold;
         }
 
-        .btn-option.incorrect {
+        .btn.incorrect {
             background-color: #f8d7da; /* Rojo */
             border-color: #f5c6cb;
             color: #721c24;
             font-weight: bold;
         }
         
-        /* Deshabilitar eventos de puntero después de seleccionar */
-        .btn-option.disabled {
+        .btn.disabled {
             pointer-events: none;
         }
 
-        #next-button {
-            background-color: #007bff;
+        .btn-action {
             color: white;
             border: none;
             border-radius: 10px;
@@ -96,7 +106,10 @@
             margin-top: 20px;
             transition: background-color 0.2s ease;
         }
-
+        
+        #next-button {
+            background-color: #007bff;
+        }
         #next-button:hover {
             background-color: #0056b3;
         }
@@ -111,14 +124,6 @@
 
         #restart-button {
             background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.2s ease;
         }
         
         #restart-button:hover {
@@ -129,524 +134,724 @@
 </head>
 <body>
 
-    <div id="quiz-container">
-        <div id="question-wrapper">
-            <div id="question-container">
-                <p id="progress-text"></p>
-                <h2 id="question-text"></h2>
-            </div>
-            <div id="answer-buttons" class="btn-grid">
-                <button class="btn-option"></button>
-                <button class="btn-option"></button>
-                <button class="btn-option"></button>
-                <button class="btn-option"></button>
-            </div>
-            <button id="next-button" class="hidden">Siguiente</button>
+    <div id="main-content">
+        
+        <div id="selection-container" class="container">
+            <h2>Selecciona un bloque para empezar</h2>
+            <div id="block-buttons">
+                </div>
+            <hr style="margin: 25px 0;">
+            <button id="mixed-test-button" class="btn">Test Completo (Mezcla)</button>
         </div>
-        <div id="score-container" class="hidden">
-            <h2 id="score-text"></h2>
-            <button id="restart-button">Volver a empezar</button>
+
+        <div id="quiz-container" class="container hidden">
+            <div id="question-wrapper">
+                <div id="question-container">
+                    <p id="progress-text"></p>
+                    <h2 id="question-text"></h2>
+                </div>
+                <div id="answer-buttons">
+                    <button class="btn"></button>
+                    <button class="btn"></button>
+                    <button class="btn"></button>
+                    <button class="btn"></button>
+                </div>
+                <button id="next-button" class="btn-action hidden">Siguiente</button>
+            </div>
+            <div id="score-container" class="hidden">
+                <h2 id="score-text"></h2>
+                <button id="restart-button" class="btn-action">Elegir otro bloque</button>
+            </div>
         </div>
+
     </div>
 
     <script>
         // --- LÓGICA (JAVASCRIPT) ---
-
-        // 1. LISTA DE PREGUNTAS
-const allQuestions = [
-    // --- PREGUNTAS DEL PRIMER BLOQUE ---
+const allQuestionsByBlock = {
+"Bloque 1: Desarrollo de Software": [
     {
-        text: "¿Según el material proporcionado, cuál es la diferencia fundamental entre 'datos' e 'información'?",
-        options: [
-            "Los datos son la salida de la CPU y la información es la entrada.",
-            "Los datos son un conjunto de hechos sin procesar, mientras que la información son datos procesados que aportan conocimiento y significado.",
-            "La información es el conjunto de símbolos como números y caracteres, y los datos son el conocimiento que se extrae de ellos.",
-            "No existe diferencia; los términos son intercambiables en informática."
+        "text": "¿Cuál es la diferencia fundamental entre 'datos' e 'información'?",
+        "options": [
+            "Los datos son impulsos eléctricos y la información su representación simbólica.",
+            "Datos son hechos brutos y aislados; información es el resultado de procesar y organizar datos para darles significado.",
+            "La información son símbolos (letras, números), y los datos el significado que se obtiene al interpretarlos.",
+            "Son términos equivalentes en el contexto de la informática y se pueden usar indistintamente."
         ],
-        correctAnswer: "Los datos son un conjunto de hechos sin procesar, mientras que la información son datos procesados que aportan conocimiento y significado."
+        "correctAnswer": "Datos son hechos brutos y aislados; información es el resultado de procesar y organizar datos para darles significado."
     },
     {
-        text: "¿Qué tipo de software tiene como objetivo principal proporcionar herramientas para desarrollar otros programas?",
-        options: ["Software de aplicación.", "Sistema operativo.", "Software de programación.", "Firmware."],
-        correctAnswer: "Software de programación."
-    },
-    {
-        text: "¿Cuál es la función principal del Sistema Operativo (SO) en la relación hardware-software?",
-        options: [
-            "Ejecutar directamente las tareas específicas del usuario, como editar un texto o jugar un videojuego.",
-            "Servir de intermediario entre las aplicaciones y el hardware, librando a los programas de conocer los detalles específicos del hardware.",
-            "Traducir el código fuente a código máquina, una tarea conocida como compilación.",
-            "Almacenar los programas que se están ejecutando, función que comparte con la memoria RAM."
+        "text": "¿Qué tipo de software tiene como objetivo principal proporcionar herramientas para desarrollar otros programas?",
+        "options": [
+            "Software de aplicación.",
+            "Sistema operativo.",
+            "Software de programación.",
+            "Firmware."
         ],
-        correctAnswer: "Servir de intermediario entre las aplicaciones y el hardware, librando a los programas de conocer los detalles específicos del hardware."
+        "correctAnswer": "Software de programación."
     },
     {
-        text: "Si no existiera un Sistema Operativo, ¿qué implicación tendría para los programas de aplicación según el texto?",
-        options: [
-            "Los programas no podrían ser escritos en lenguajes de alto nivel.",
-            "El hardware no podría interpretar el código binario.",
-            "Cada programa tendría que ser diseñado para manejar cada dispositivo de hardware específico con el que interactúa, como una impresora.",
-            "Los ordenadores funcionarían más rápido al no tener una capa extra de software."
+        "text": "¿Cuál es la función principal del Sistema Operativo (SO) en la relación hardware-software?",
+        "options": [
+            "Gestionar directamente las tareas del usuario final, como la edición de textos o la navegación web.",
+            "Actuar como intermediario abstracto entre las aplicaciones y el hardware, gestionando los recursos del sistema.",
+            "Realizar la traducción de lenguajes de alto nivel a código máquina, proceso indispensable para la ejecución.",
+            "Controlar el almacenamiento permanente de datos y programas en los dispositivos de memoria secundaria."
         ],
-        correctAnswer: "Cada programa tendría que ser diseñado para manejar cada dispositivo de hardware específico con el que interactúa, como una impresora."
+        "correctAnswer": "Actuar como intermediario abstracto entre las aplicaciones y el hardware, gestionando los recursos del sistema."
     },
     {
-        text: "¿Cuál es una de las características principales de la arquitectura Von Neumann, seguida por todos los ordenadores actuales?",
-        options: [
-            "La separación física de la memoria de programas y la memoria de datos.",
-            "El uso de un único lenguaje de programación visual para todas las tareas.",
-            "El concepto de programa almacenado en la memoria principal junto con los datos sobre los que opera.",
-            "La capacidad de ejecutar código fuente directamente sin necesidad de traducción."
+        "text": "Si no existiera un Sistema Operativo, ¿qué implicación directa tendría para los programas de aplicación?",
+        "options": [
+            "El rendimiento del sistema aumentaría al eliminar la sobrecarga que introduce la capa del sistema operativo.",
+            "El procesador sería incapaz de ejecutar el código binario de las aplicaciones sin un gestor de procesos.",
+            "Cada aplicación debería incluir su propio código para controlar directamente el hardware (impresoras, discos, etc.).",
+            "La programación se limitaría a lenguajes de bajo nivel, al no haber una capa que gestione la abstracción."
         ],
-        correctAnswer: "El concepto de programa almacenado en la memoria principal junto con los datos sobre los que opera."
+        "correctAnswer": "Cada aplicación debería incluir su propio código para controlar directamente el hardware (impresoras, discos, etc.)."
     },
     {
-        text: "¿Qué es el código máquina?",
-        options: [
-            "Es un lenguaje de alto nivel cercano al lenguaje humano que necesita ser traducido.",
-            "Es el único lenguaje que el procesador de un ordenador puede entender directamente, basado en secuencias de 0s y 1s.",
-            "Es un tipo de código intermedio generado por un intérprete, también conocido como código objeto.",
-            "Es el código escrito por los programadores usando mnemotécnicos como 'MOV' o 'INT'."
+        "text": "¿Cuál es una de las características clave de la arquitectura Von Neumann, base de los ordenadores actuales?",
+        "options": [
+            "La separación física entre la memoria utilizada para los programas y la memoria utilizada para los datos.",
+            "El uso de un único procesador central para ejecutar tanto las instrucciones del programa como las operaciones con datos.",
+            "El concepto de programa almacenado en la misma memoria principal junto con los datos sobre los que opera.",
+            "La capacidad de ejecutar instrucciones escritas en código fuente directamente, sin un proceso de traducción."
         ],
-        correctAnswer: "Es el único lenguaje que el procesador de un ordenador puede entender directamente, basado en secuencias de 0s y 1s."
+        "correctAnswer": "El concepto de programa almacenado en la misma memoria principal junto con los datos sobre los que opera."
     },
     {
-        text: "Si en un lenguaje de programación escribimos `total final + 1 = total;`, ¿qué tipo de error estamos cometiendo?",
-        options: [
-            "Un error léxico, porque 'final' no pertenece al alfabeto del lenguaje.",
-            "Un error semántico, porque no se puede sumar una cadena a un número.",
-            "Un error de sintaxis, ya que las normas no permiten una operación en la parte izquierda de una asignación.",
-            "No es un error, es una forma válida de escritura en lenguajes declarativos."
+        "text": "¿Qué es el código máquina?",
+        "options": [
+            "Un lenguaje de alto nivel, similar al lenguaje humano, que facilita la escritura de programas complejos.",
+            "El único lenguaje que un procesador puede ejecutar directamente, compuesto por secuencias de ceros y unos.",
+            "Un código intermedio generado por un intérprete, también conocido como 'código objeto' o 'bytecode'.",
+            "El código fuente escrito por programadores utilizando un editor de texto y reglas sintácticas específicas."
         ],
-        correctAnswer: "Un error de sintaxis, ya que las normas no permiten una operación en la parte izquierda de una asignación."
+        "correctAnswer": "El único lenguaje que un procesador puede ejecutar directamente, compuesto por secuencias de ceros y unos."
     },
     {
-        text: "¿Cómo se clasifican los lenguajes de programación según su nivel de abstracción?",
-        options: [
-            "Compilados e interpretados.",
-            "De primera generación y de quinta generación.",
-            "De propósito general y de propósito específico.",
-            "De alto nivel (cercanos al razonamiento humano) y de bajo nivel (cercanos a la máquina)."
+        "text": "Si en un lenguaje de programación escribimos `total + 1 = total;`, ¿qué tipo de error estamos cometiendo?",
+        "options": [
+            "Un error léxico, porque algún símbolo como '+' no pertenece al alfabeto del lenguaje.",
+            "Un error semántico, porque la operación matemática viola la lógica del programa.",
+            "Un error de sintaxis, porque las reglas del lenguaje no permiten una operación a la izquierda de una asignación.",
+            "No es un error, es una forma válida de reasignación en lenguajes funcionales."
         ],
-        correctAnswer: "De alto nivel (cercanos al razonamiento humano) y de bajo nivel (cercanos a la máquina)."
+        "correctAnswer": "Un error de sintaxis, porque las reglas del lenguaje no permiten una operación a la izquierda de una asignación."
     },
     {
-        text: "¿Qué define a un lenguaje compilado?",
-        options: [
-            "Un programa intérprete ejecuta las instrucciones directamente del código fuente, línea por línea.",
-            "Un programa traductor convierte todo el código fuente en código objeto, que luego un enlazador convierte en un programa ejecutable.",
-            "El programador solo necesita especificar el problema y la máquina lo resuelve, típico de la inteligencia artificial.",
-            "Se programa de forma gráfica y el código se genera automáticamente."
+        "text": "¿Cómo se clasifican los lenguajes de programación principalmente según su nivel de abstracción?",
+        "options": [
+            "En lenguajes compilados y lenguajes interpretados, según su método de traducción.",
+            "En lenguajes de primera a quinta generación, según su evolución histórica y paradigma.",
+            "En lenguajes de propósito general y de propósito específico, según su ámbito de aplicación.",
+            "En lenguajes de alto nivel (cercanos al humano) y de bajo nivel (cercanos a la máquina)."
         ],
-        correctAnswer: "Un programa traductor convierte todo el código fuente en código objeto, que luego un enlazador convierte en un programa ejecutable."
+        "correctAnswer": "En lenguajes de alto nivel (cercanos al humano) y de bajo nivel (cercanos a la máquina)."
     },
     {
-        text: "¿Cuál es la principal diferencia entre el código fuente y el código ejecutable?",
-        options: [
-            "El código fuente está en binario, mientras que el ejecutable está en un lenguaje de alto nivel.",
-            "El código fuente es escrito y entendible por los programadores, pero no es directamente ejecutable por el ordenador, a diferencia del código ejecutable.",
-            "El código fuente solo puede ser creado con un editor de textos simple y el código ejecutable con un IDE.",
-            "Ambos son ejecutables, pero el código fuente es más lento porque es interpretado."
+        "text": "¿Qué define a un lenguaje compilado?",
+        "options": [
+            "Un intérprete ejecuta las instrucciones directamente desde el código fuente, línea por línea, en tiempo de ejecución.",
+            "Un traductor convierte todo el código fuente a código máquina antes de la ejecución, generando un fichero independiente.",
+            "El programador necesita especificar únicamente el problema y la máquina infiere la solución, como en IA.",
+            "El código se genera de forma automática a partir de diagramas o interfaces gráficas, sin escritura manual."
         ],
-        correctAnswer: "El código fuente es escrito y entendible por los programadores, pero no es directamente ejecutable por el ordenador, a diferencia del código ejecutable."
+        "correctAnswer": "Un traductor convierte todo el código fuente a código máquina antes de la ejecución, generando un fichero independiente."
     },
     {
-        text: "¿Qué herramienta se encarga de unir los ficheros de código objeto con las librerías necesarias para crear el programa ejecutable?",
-        options: ["El compilador.", "El editor de texto.", "El enlazador (linker).", "El depurador."],
-        correctAnswer: "El enlazador (linker)."
-    },
-    {
-        text: "¿Qué es un Entorno de Desarrollo Integrado (IDE)?",
-        options: [
-            "Un tipo de software de aplicación para usuarios generales, como un procesador de textos.",
-            "Un conjunto de herramientas (editor, compilador, depurador) agrupadas en una sola aplicación para facilitar la creación de programas.",
-            "Un lenguaje de programación visual que genera código automáticamente.",
-            "El hardware específico sobre el que se ejecutan los programas."
+        "text": "¿Cuál es la principal diferencia entre el código fuente y el código ejecutable?",
+        "options": [
+            "El código fuente está en binario, mientras que el ejecutable está en un lenguaje de alto nivel fácil de leer.",
+            "El código fuente lo escriben los programadores y no es entendido por la CPU; el ejecutable es el resultado de traducirlo.",
+            "El código fuente se edita en un IDE profesional y el código ejecutable con un editor de textos simple.",
+            "Ambos son ejecutables por la máquina, pero el código fuente es más lento al requerir una capa de interpretación."
         ],
-        correctAnswer: "Un conjunto de herramientas (editor, compilador, depurador) agrupadas en una sola aplicación para facilitar la creación de programas."
+        "correctAnswer": "El código fuente lo escriben los programadores y no es entendido por la CPU; el ejecutable es el resultado de traducirlo."
     },
     {
-        text: "¿Qué es un 'framework' en el desarrollo de software?",
-        options: [
-            "Un conjunto de normas de codificación y estilo para facilitar la lectura del código fuente.",
-            "Un conjunto de bibliotecas, herramientas y convenciones que proporcionan una estructura para facilitar la creación de aplicaciones.",
-            "Un tipo de software malicioso, como un virus, que es analizado con codificación hexadecimal.",
-            "La fase de desarrollo donde se prueba que la aplicación funciona correctamente."
+        "text": "¿Qué herramienta une los ficheros de código objeto con las librerías para crear el programa ejecutable final?",
+        "options": [
+            "El compilador.",
+            "El editor de texto.",
+            "El enlazador (linker).",
+            "El depurador (debugger)."
         ],
-        correctAnswer: "Un conjunto de bibliotecas, herramientas y convenciones que proporcionan una estructura para facilitar la creación de aplicaciones."
+        "correctAnswer": "El enlazador (linker)."
     },
     {
-        text: "¿Por qué surgió la Ingeniería del Software?",
-        options: [
-            "Para dar respuesta a la 'crisis del software' de los años 70, que se caracterizó por la escasa planificación y la baja calidad del software.",
-            "Para crear los primeros lenguajes de alto nivel como C y Pascal.",
-            "Para desarrollar la arquitectura de Von Neumann basada en el programa almacenado.",
-            "Para inventar los entornos de desarrollo integrados (IDE) y facilitar la programación."
+        "text": "¿Qué es un Entorno de Desarrollo Integrado (IDE)?",
+        "options": [
+            "Un tipo de software de aplicación para usuarios no técnicos, como un procesador de textos o un navegador web.",
+            "Una aplicación que agrupa herramientas como editor, compilador y depurador para facilitar la programación.",
+            "Un lenguaje de programación de alto nivel que utiliza una sintaxis visual basada en diagramas y bloques.",
+            "Un conjunto de especificaciones de hardware sobre las que se desarrollan y ejecutan los programas."
         ],
-        correctAnswer: "Para dar respuesta a la 'crisis del software' de los años 70, que se caracterizó por la escasa planificación y la baja calidad del software."
+        "correctAnswer": "Una aplicación que agrupa herramientas como editor, compilador y depurador para facilitar la programación."
     },
     {
-        text: "¿Cuál es la pregunta fundamental que se responde durante la fase de Análisis en el desarrollo de software?",
-        options: ["¿CÓMO vamos a hacerlo?", "¿QUÉ queremos hacer?", "¿En qué lenguaje se va a escribir?", "¿El software funciona sin fallos?"],
-        correctAnswer: "¿QUÉ queremos hacer?"
-    },
-    {
-        text: "¿Qué sería un ejemplo de requisito funcional para una aplicación de tienda online?",
-        options: [
-            "La aplicación debe ser capaz de funcionar en sistemas operativos Windows y Android.",
-            "El sistema debe poder procesar 1000 transacciones por segundo sin disminuir su rendimiento.",
-            "El programa debe permitir a los usuarios añadir productos a un carrito de la compra y emitir facturas.",
-            "El diseño de la interfaz debe ser intuitivo y fácil de usar para personas sin experiencia."
+        "text": "¿Qué es un 'framework' en el desarrollo de software?",
+        "options": [
+            "Un manual de estilo que define normas de codificación para que el código fuente sea homogéneo y legible.",
+            "Una estructura base de código, con librerías y convenciones, que sirve de esqueleto para crear una aplicación.",
+            "Un tipo de software malicioso que se aprovecha de las vulnerabilidades de otros programas para ejecutarse.",
+            "La fase final del ciclo de vida del desarrollo, donde se comprueba que la aplicación no contiene errores."
         ],
-        correctAnswer: "El programa debe permitir a los usuarios añadir productos a un carrito de la compra y emitir facturas."
+        "correctAnswer": "Una estructura base de código, con librerías y convenciones, que sirve de esqueleto para crear una aplicación."
     },
     {
-        text: "¿Qué se realiza principalmente en la fase de Diseño del desarrollo de software?",
-        options: [
-            "Se escriben los programas eligiendo un lenguaje de programación.",
-            "Se recopilan las necesidades del cliente y se especifican los requisitos.",
-            "Se traducen los requisitos en una representación del software, definiendo su arquitectura y estructura.",
-            "Se instala la aplicación en los equipos del cliente y se realizan pruebas Beta."
+        "text": "¿Por qué surgió la disciplina de la Ingeniería del Software?",
+        "options": [
+            "Para solucionar la 'crisis del software', un período con proyectos de baja calidad, sobrecostes y retrasos.",
+            "Para estandarizar el uso de los nuevos lenguajes de alto nivel como C y Pascal en proyectos a gran escala.",
+            "Para aplicar formalmente los principios de la arquitectura Von Neumann al diseño de sistemas informáticos complejos.",
+            "Para crear las primeras herramientas integradas (IDE) que automatizaran las tareas repetitivas de la programación."
         ],
-        correctAnswer: "Se traducen los requisitos en una representación del software, definiendo su arquitectura y estructura."
+        "correctAnswer": "Para solucionar la 'crisis del software', un período con proyectos de baja calidad, sobrecostes y retrasos."
     },
     {
-        text: "¿Cuál de las siguientes es una característica deseable del código fuente para facilitar su mantenimiento futuro?",
-        options: [
-            "Que sea complejo y solo entendible por su creador para proteger la propiedad intelectual.",
-            "Que haga un uso máximo de los recursos del sistema, como la CPU y la RAM, para demostrar su potencia.",
-            "Que sea fácil de leer y esté dividido en módulos que resuelvan problemas concretos.",
-            "Que funcione únicamente en una arquitectura de hardware específica (portabilidad nula)."
+        "text": "¿Cuál es la pregunta fundamental que se responde durante la fase de Análisis en el desarrollo de software?",
+        "options": [
+            "¿CÓMO vamos a construir el sistema?",
+            "¿QUÉ debe hacer el sistema?",
+            "¿CUÁNDO estará terminado el proyecto?",
+            "¿QUIÉN se encargará de cada tarea?"
         ],
-        correctAnswer: "Que sea fácil de leer y esté dividido en módulos que resuelvan problemas concretos."
+        "correctAnswer": "¿QUÉ debe hacer el sistema?"
     },
     {
-        text: "Dentro de la documentación de un proyecto, ¿a quién va dirigida principalmente la 'Guía de Usuario'?",
-        options: [
-            "A los analistas y programadores, detallando el diseño y la codificación.",
-            "Al personal informático responsable de la instalación y puesta en marcha.",
-            "A los usuarios finales (clientes) que van a utilizar la aplicación, describiendo su funcionalidad.",
-            "Al jefe de proyecto, para la planificación y seguimiento de las tareas."
+        "text": "¿Qué sería un ejemplo de requisito funcional para una aplicación de tienda online?",
+        "options": [
+            "La aplicación debe ser compatible con los navegadores web más populares, como Chrome y Firefox.",
+            "El sistema debe procesar un pago en menos de 3 segundos, incluso con 500 usuarios concurrentes.",
+            "El sistema debe permitir al usuario añadir productos al carrito, registrarse y finalizar la compra.",
+            "La interfaz debe seguir la guía de estilo de la marca y ser considerada 'intuitiva' por nuevos usuarios."
         ],
-        correctAnswer: "A los usuarios finales (clientes) que van a utilizar la aplicación, describiendo su funcionalidad."
+        "correctAnswer": "El sistema debe permitir al usuario añadir productos al carrito, registrarse y finalizar la compra."
     },
     {
-        text: "La fase de Explotación del software implica...",
-        options: [
-            "La corrección de errores descubiertos después de la entrega y la adición de nuevas funcionalidades.",
-            "La escritura del código fuente del programa en un lenguaje de alto nivel.",
-            "La instalación, configuración y puesta en marcha del producto en el entorno de trabajo del cliente.",
-            "La creación de prototipos para entender mejor el problema a resolver."
+        "text": "¿Qué se realiza principalmente en la fase de Diseño del desarrollo de software?",
+        "options": [
+            "Se escribe el código de los programas eligiendo el lenguaje de programación más adecuado para la tarea.",
+            "Se definen los requisitos del sistema a partir de las necesidades expresadas por el cliente o usuario.",
+            "Se define la arquitectura, módulos y estructura del software, traduciendo los requisitos a un plano técnico.",
+            "Se instala la aplicación en el entorno del cliente y se realizan pruebas de aceptación para validar su funcionamiento."
         ],
-        correctAnswer: "La instalación, configuración y puesta en marcha del producto en el entorno de trabajo del cliente."
+        "correctAnswer": "Se define la arquitectura, módulos y estructura del software, traduciendo los requisitos a un plano técnico."
     },
     {
-        text: "¿Qué tipo de mantenimiento se realiza para modificar el software e incorporar nuevas funcionalidades o mejoras?",
-        options: ["Mantenimiento correctivo.", "Mantenimiento adaptativo.", "Mantenimiento preventivo.", "Mantenimiento perfectivo."],
-        correctAnswer: "Mantenimiento perfectivo."
-    },
-    {
-        text: "¿Qué rol del equipo de desarrollo es el responsable de estudiar exhaustivamente el problema a resolver y crear un modelo del sistema?",
-        options: ["El programador.", "El diseñador.", "El analista.", "El probador (tester)."],
-        correctAnswer: "El analista."
-    },
-    {
-        text: "¿Qué es el firmware?",
-        options: [
-            "Un tipo de software de aplicación para usuarios generales, como una hoja de cálculo.",
-            "Es el software que interactúa directamente con el hardware en dispositivos como un router o la BIOS de un ordenador.",
-            "Un sinónimo de Sistema Operativo para ordenadores personales.",
-            "Un error de sintaxis en un programa."
+        "text": "¿Cuál de las siguientes es una característica deseable del código fuente para facilitar su mantenimiento?",
+        "options": [
+            "Un alto grado de complejidad, solo entendible por su autor, para proteger la propiedad intelectual del código.",
+            "Un uso máximo de los recursos del sistema (CPU, RAM) para demostrar la potencia del programa.",
+            "Una estructura modular y una redacción clara, que permitan a otros programadores entenderlo y modificarlo.",
+            "Una portabilidad nula, funcionando únicamente en una arquitectura de hardware muy específica."
         ],
-        correctAnswer: "Es el software que interactúa directamente con el hardware en dispositivos como un router o la BIOS de un ordenador."
+        "correctAnswer": "Una estructura modular y una redacción clara, que permitan a otros programadores entenderlo y modificarlo."
     },
     {
-        text: "¿Qué clasificación de lenguajes se asocia con la inteligencia artificial, donde el programador establece el problema y las condiciones, y la máquina lo resuelve?",
-        options: ["Lenguajes de segunda generación (2GL).", "Lenguajes de cuarta generación (4GL).", "Lenguajes de quinta generación (5GL).", "Lenguajes de script."],
-        correctAnswer: "Lenguajes de quinta generación (5GL)."
-    },
-    {
-        text: "El proceso de depuración (debug) forma parte de la fase de...",
-        options: ["Análisis.", "Diseño.", "Construcción (Codificación y Pruebas).", "Mantenimiento."],
-        correctAnswer: "Construcción (Codificación y Pruebas)."
-    },
-    // --- PREGUNTAS DEL SEGUNDO BLOQUE ---
-    {
-        text: "¿Cuál es el objetivo principal de definir un ciclo de vida del software?",
-        options: [
-            "Elegir el lenguaje de programación más adecuado para el proyecto.",
-            "Determinar el orden de las tareas a realizar y los criterios para pasar de una a otra.",
-            "Contratar a los desarrolladores y asignar los roles de Scrum Master y Product Owner.",
-            "Garantizar que el software sea siempre de código abierto y utilice una licencia GPL."
+        "text": "Dentro de la documentación de un proyecto, ¿a quién va dirigida principalmente la 'Guía de Usuario'?",
+        "options": [
+            "A los programadores, detallando la arquitectura del sistema, los algoritmos y el diseño de las clases.",
+            "Al personal de sistemas, explicando los procedimientos de instalación, configuración y puesta en marcha.",
+            "A los usuarios finales (clientes), describiendo las funcionalidades del programa y cómo utilizarlas.",
+            "Al jefe de proyecto, presentando la planificación de tareas, la asignación de recursos y el presupuesto."
         ],
-        correctAnswer: "Determinar el orden de las tareas a realizar y los criterios para pasar de una a otra."
+        "correctAnswer": "A los usuarios finales (clientes), describiendo las funcionalidades del programa y cómo utilizarlas."
     },
     {
-        text: "¿Cuál es una característica fundamental del modelo en cascada clásico?",
-        options: [
+        "text": "La fase de Explotación o Implantación del software implica principalmente...",
+        "options": [
+            "La corrección de errores descubiertos tras la entrega y la adición de nuevas funcionalidades solicitadas.",
+            "La escritura del código fuente del programa en un lenguaje de alto nivel por parte del equipo de desarrollo.",
+            "La instalación, configuración y puesta en marcha del producto en el entorno de trabajo real del cliente.",
+            "La creación de prototipos y modelos para entender mejor el problema a resolver antes de construirlo."
+        ],
+        "correctAnswer": "La instalación, configuración y puesta en marcha del producto en el entorno de trabajo real del cliente."
+    },
+    {
+        "text": "¿Qué tipo de mantenimiento se realiza para añadir nuevas funcionalidades o mejorar las existentes en un software?",
+        "options": [
+            "Mantenimiento correctivo.",
+            "Mantenimiento adaptativo.",
+            "Mantenimiento preventivo.",
+            "Mantenimiento perfectivo."
+        ],
+        "correctAnswer": "Mantenimiento perfectivo."
+    },
+    {
+        "text": "¿Qué rol del equipo de desarrollo es responsable de estudiar el problema y crear un modelo del sistema?",
+        "options": [
+            "El programador.",
+            "El diseñador.",
+            "El analista.",
+            "El probador (tester)."
+        ],
+        "correctAnswer": "El analista."
+    },
+    {
+        "text": "¿Qué es el firmware?",
+        "options": [
+            "Un tipo de software de aplicación genérico, como una hoja de cálculo o un editor de imágenes.",
+            "Software de bajo nivel que reside en un chip de memoria y controla el hardware de un dispositivo específico.",
+            "Un sinónimo de Sistema Operativo, utilizado comúnmente en el contexto de ordenadores personales.",
+            "Un tipo de error lógico en un programa que causa un comportamiento inesperado pero no su bloqueo."
+        ],
+        "correctAnswer": "Software de bajo nivel que reside en un chip de memoria y controla el hardware de un dispositivo específico."
+    },
+    {
+        "text": "¿Qué clasificación de lenguajes se asocia con la IA, donde se describe el problema y la máquina infiere la solución?",
+        "options": [
+            "Lenguajes de segunda generación (2GL).",
+            "Lenguajes de cuarta generación (4GL).",
+            "Lenguajes de quinta generación (5GL).",
+            "Lenguajes de script."
+        ],
+        "correctAnswer": "Lenguajes de quinta generación (5GL)."
+    },
+    {
+        "text": "El proceso de depuración (debugging) es una parte fundamental de la fase de...",
+        "options": [
+            "Análisis.",
+            "Diseño.",
+            "Construcción (Codificación y Pruebas).",
+            "Mantenimiento."
+        ],
+        "correctAnswer": "Construcción (Codificación y Pruebas)."
+    },
+    {
+        "text": "¿Cuál es el objetivo principal de definir un ciclo de vida del software?",
+        "options": [
+            "Elegir el lenguaje de programación y el framework más adecuados para la tecnología del proyecto.",
+            "Establecer un orden para las fases del proyecto y definir los criterios para pasar de una a otra.",
+            "Contratar a los miembros del equipo y asignar los roles necesarios, como Scrum Master o Product Owner.",
+            "Garantizar que el software desarrollado sea siempre de código abierto y utilice una licencia de tipo GPL."
+        ],
+        "correctAnswer": "Establecer un orden para las fases del proyecto y definir los criterios para pasar de una a otra."
+    },
+    {
+        "text": "¿Cuál es una característica fundamental del modelo en cascada clásico?",
+        "options": [
             "Es un modelo iterativo que permite entregar versiones funcionales del software en ciclos cortos.",
-            "Es un enfoque lineal y secuencial donde una fase no comienza hasta que la anterior ha terminado por completo.",
-            "Incorpora un análisis de riesgos en cada vuelta de la espiral para evaluar alternativas.",
-            "Se centra en la creación de prototipos que son evaluados por el cliente antes de continuar."
+            "Es un enfoque lineal donde una fase debe concluir por completo antes de que la siguiente pueda comenzar.",
+            "Incorpora un análisis explícito de riesgos en cada ciclo para evaluar si continuar o cambiar el enfoque.",
+            "Se centra en la creación y validación de prototipos con el cliente antes de proceder con el desarrollo."
         ],
-        correctAnswer: "Es un enfoque lineal y secuencial donde una fase no comienza hasta que la anterior ha terminado por completo."
+        "correctAnswer": "Es un enfoque lineal donde una fase debe concluir por completo antes de que la siguiente pueda comenzar."
     },
     {
-        text: "Según el texto, ¿cuál es uno de los mayores inconvenientes del modelo en cascada?",
-        options: [
-            "Requiere muy poca documentación, lo que dificulta el mantenimiento a largo plazo.",
-            "El cliente recibe versiones funcionales del software desde las primeras etapas del proyecto.",
-            "Es difícil para el cliente definir todos los requisitos de forma explícita al principio, y los cambios tardíos son muy costosos.",
-            "Los programadores deben trabajar en parejas, lo que aumenta los costes del proyecto."
+        "text": "¿Cuál es uno de los mayores inconvenientes del modelo en cascada?",
+        "options": [
+            "Genera muy poca documentación, lo que dificulta enormemente el mantenimiento del software a largo plazo.",
+            "El cliente no tiene una visión clara del producto final hasta que el desarrollo está casi completado.",
+            "Es un modelo muy flexible que dificulta la gestión del proyecto y el control de los plazos y costes.",
+            "Los programadores deben trabajar en parejas (pair programming), lo que puede aumentar los costes del proyecto."
         ],
-        correctAnswer: "Es difícil para el cliente definir todos los requisitos de forma explícita al principio, y los cambios tardíos son muy costosos."
+        "correctAnswer": "El cliente no tiene una visión clara del producto final hasta que el desarrollo está casi completado."
     },
     {
-        text: "¿Cómo soluciona el modelo incremental uno de los problemas del modelo en cascada?",
-        options: [
-            "Eliminando por completo la fase de análisis y diseño para acelerar el desarrollo.",
-            "Proporcionando una funcionalidad parcial del software al cliente en entregas sucesivas, en lugar de esperar hasta el final.",
-            "Utilizando un enfoque ágil centrado en la gestión del proyecto con roles como el Scrum Master.",
-            "Obligando a que todo el software derivado se distribuya bajo la misma licencia."
+        "text": "¿Cómo soluciona el modelo incremental uno de los problemas clave del modelo en cascada?",
+        "options": [
+            "Eliminando por completo las fases de análisis y diseño para poder comenzar a programar inmediatamente.",
+            "Entregando al cliente partes funcionales del software en sucesivos incrementos, en lugar de un único producto final.",
+            "Utilizando un enfoque ágil centrado en la gestión del proyecto con roles definidos como el Scrum Master.",
+            "Obligando a que todo el código fuente del proyecto se distribuya bajo una licencia de software libre."
         ],
-        correctAnswer: "Proporcionando una funcionalidad parcial del software al cliente en entregas sucesivas, en lugar de esperar hasta el final."
+        "correctAnswer": "Entregando al cliente partes funcionales del software en sucesivos incrementos, en lugar de un único producto final."
     },
     {
-        text: "¿Qué elemento diferenciador añade el modelo en espiral a la combinación del modelo en cascada y el de prototipos?",
-        options: [
-            "La entrega continua de valor al cliente al final de cada sprint.",
-            "El desarrollo guiado por pruebas (TDD) y la refactorización continua del código.",
-            "El análisis de riesgos como una fase explícita en cada ciclo para evaluar alternativas.",
-            "La prohibición de realizar modificaciones en el software una vez entregado."
+        "text": "¿Qué elemento diferenciador añade el modelo en espiral a otros modelos de ciclo de vida?",
+        "options": [
+            "La entrega continua de valor al cliente al final de cada ciclo de trabajo corto, denominado sprint.",
+            "El desarrollo guiado por pruebas (TDD), donde las pruebas se escriben antes que el propio código.",
+            "La inclusión de una fase de análisis de riesgos en cada iteración para evaluar y mitigar incertidumbres.",
+            "La prohibición de realizar cualquier modificación en el software una vez ha sido entregado al cliente."
         ],
-        correctAnswer: "El análisis de riesgos como una fase explícita en cada ciclo para evaluar alternativas."
+        "correctAnswer": "La inclusión de una fase de análisis de riesgos en cada iteración para evaluar y mitigar incertidumbres."
     },
     {
-        text: "¿Qué es una licencia de software?",
-        options: [
-            "Un documento técnico que describe la arquitectura del sistema para los desarrolladores.",
-            "Un conjunto de principios y prácticas que guían la gestión de proyectos de software.",
-            "Un contrato entre el desarrollador y el usuario que define los derechos y deberes de ambas partes sobre el uso del software.",
-            "Un tipo de software que se distribuye gratuitamente pero cuyo código fuente no puede ser modificado."
+        "text": "¿Qué es una licencia de software?",
+        "options": [
+            "Un documento técnico que describe la arquitectura del sistema para guiar a los desarrolladores.",
+            "Un conjunto de principios y buenas prácticas que guían la gestión de un proyecto de software.",
+            "Un contrato que define los derechos y deberes del autor y del usuario sobre el uso del programa.",
+            "Un tipo de software que se distribuye gratuitamente, pero cuyo código fuente no puede ser modificado."
         ],
-        correctAnswer: "Un contrato entre el desarrollador y el usuario que define los derechos y deberes de ambas partes sobre el uso del software."
+        "correctAnswer": "Un contrato que define los derechos y deberes del autor y del usuario sobre el uso del programa."
     },
     {
-        text: "Según la Free Software Foundation, ¿cuáles son las cuatro libertades fundamentales del software libre?",
-        options: [
-            "Usar, copiar, modificar y vender el software sin ninguna restricción.",
-            "Ejecutar, estudiar/cambiar, redistribuir y mejorar el programa poniendo las mejoras a disposición del público.",
-            "Instalar en un solo ordenador, usar con fines no comerciales, no realizar ingeniería inversa y recibir soporte técnico.",
-            "Libre distribución, inclusión del código fuente, no discriminación de personas y neutralidad tecnológica."
+        "text": "Según la Free Software Foundation, ¿cuáles son las cuatro libertades esenciales del software libre?",
+        "options": [
+            "Poder usar, copiar, modificar y vender el software sin ninguna restricción de ningún tipo.",
+            "Poder ejecutar, estudiar/modificar, redistribuir y distribuir las mejoras del programa.",
+            "Poder instalarlo en un solo PC, usarlo sin fines comerciales, no modificarlo y recibir soporte.",
+            "Garantizar su distribución gratuita, la inclusión del código fuente y la no discriminación de usuarios."
         ],
-        correctAnswer: "Ejecutar, estudiar/cambiar, redistribuir y mejorar el programa poniendo las mejoras a disposición del público."
+        "correctAnswer": "Poder ejecutar, estudiar/modificar, redistribuir y distribuir las mejoras del programa."
     },
     {
-        text: "¿Cuál es la principal diferencia filosófica entre el movimiento del Software Libre (FSF) y el de Código Abierto (OSI)?",
-        options: [
-            "La FSF permite cobrar por el software, mientras que la OSI exige que todo sea gratuito.",
-            "La FSF se enfoca en los beneficios prácticos y técnicos, mientras que la OSI defiende una motivación ética basada en la libertad.",
-            "La FSF se basa en una motivación ética sobre la libertad del usuario, mientras que la OSI adopta un enfoque más pragmático.",
-            "No hay ninguna diferencia, ambos términos y movimientos son completamente sinónimos."
+        "text": "¿Cuál es la principal diferencia filosófica entre el movimiento del Software Libre (FSF) y el de Código Abierto (OSI)?",
+        "options": [
+            "La FSF se centra en las ventajas prácticas del modelo, mientras que la OSI defiende una motivación ética de libertad.",
+            "La FSF defiende una motivación ética de libertad para el usuario, mientras que la OSI se enfoca en beneficios prácticos.",
+            "El software de la FSF siempre debe ser gratuito, mientras que el de la OSI puede ser comercializado.",
+            "No hay ninguna diferencia real; ambos movimientos son completamente sinónimos en objetivos y filosofía."
         ],
-        correctAnswer: "La FSF se basa en una motivación ética sobre la libertad del usuario, mientras que la OSI adopta un enfoque más pragmático."
+        "correctAnswer": "La FSF defiende una motivación ética de libertad para el usuario, mientras que la OSI se enfoca en beneficios prácticos."
     },
     {
-        text: "¿Qué garantiza el 'copyleft' en una licencia de software libre como la GPL?",
-        options: [
-            "Que el software puede ser convertido en propietario si el desarrollador lo desea.",
-            "Que cualquier software derivado o modificado también debe ser distribuido como software libre bajo los mismos términos.",
-            "Que el software es de dominio público y no tiene derechos de autor.",
-            "Que el software solo puede usarse con fines no comerciales."
+        "text": "¿Qué garantiza el 'copyleft' en una licencia de software libre como la GPL?",
+        "options": [
+            "Permite al desarrollador que modifica el código convertirlo en software propietario si así lo desea.",
+            "Obliga a que cualquier obra derivada o modificada sea distribuida también como software libre bajo los mismos términos.",
+            "Declara el software como de dominio público, renunciando a todos los derechos de autor sobre el código.",
+            "Asegura que el software pueda ser utilizado libremente, pero prohíbe explícitamente su uso con fines comerciales."
         ],
-        correctAnswer: "Que cualquier software derivado o modificado también debe ser distribuido como software libre bajo los mismos términos."
+        "correctAnswer": "Obliga a que cualquier obra derivada o modificada sea distribuida también como software libre bajo los mismos términos."
     },
     {
-        text: "¿Por qué una licencia como la MIT se considera 'permisiva' y sin copyleft?",
-        options: [
-            "Porque exige que todas las obras derivadas se compartan bajo la misma licencia.",
-            "Porque prohíbe el uso del software con fines comerciales.",
-            "Porque permite que el software sea incluido en proyectos propietarios, sin obligar a que todo el proyecto sea libre.",
-            "Porque fue creada por el MIT y solo es válida en Estados Unidos."
+        "text": "¿Por qué una licencia como la MIT se considera 'permisiva' y sin copyleft?",
+        "options": [
+            "Porque exige que todas las obras que la utilicen se compartan obligatoriamente bajo la misma licencia MIT.",
+            "Porque prohíbe terminantemente que el software sea utilizado en cualquier tipo de proyecto comercial.",
+            "Porque permite integrar el código en proyectos propietarios sin obligar a que todo el proyecto sea libre.",
+            "Porque fue creada por el MIT y su uso está legalmente restringido al ámbito académico y de investigación."
         ],
-        correctAnswer: "Porque permite que el software sea incluido en proyectos propietarios, sin obligar a que todo el proyecto sea libre."
+        "correctAnswer": "Porque permite integrar el código en proyectos propietarios sin obligar a que todo el proyecto sea libre."
     },
     {
-        text: "¿Qué es una licencia OEM (Original Equipment Manufacturer)?",
-        options: [
-            "Una licencia que permite el uso ilimitado del software en cualquier dispositivo, de forma gratuita.",
-            "Una licencia que requiere un pago periódico (suscripción) para poder utilizar el software.",
-            "Una licencia que viene con software preinstalado y está vinculada al hardware específico en el que se vendió.",
-            "Un tipo de licencia de software libre con copyleft, similar a la GPL."
+        "text": "¿Qué es una licencia OEM (Original Equipment Manufacturer)?",
+        "options": [
+            "Una licencia que autoriza el uso ilimitado del software en cualquier número de dispositivos de forma gratuita.",
+            "Un modelo de licencia basado en un pago periódico (suscripción) para mantener el derecho a usar el software.",
+            "Una licencia de software que viene preinstalado y está vinculada al hardware específico con el que se vendió.",
+            "Un tipo de licencia de software libre con un copyleft fuerte, similar en términos a la licencia GPL."
         ],
-        correctAnswer: "Una licencia que viene con software preinstalado y está vinculada al hardware específico en el que se vendió."
+        "correctAnswer": "Una licencia de software que viene preinstalado y está vinculada al hardware específico con el que se vendió."
     },
     {
-        text: "De las siguientes licencias Creative Commons, ¿cuál es la más restrictiva?",
-        options: ["Atribución (CC-BY).", "Atribución-CompartirIgual (CC BY-SA).", "Atribución-NoComercial-NoDerivadas (CC BY-NC-ND).", "Atribución-NoComercial (CC BY-NC)."],
-        correctAnswer: "Atribución-NoComercial-NoDerivadas (CC BY-NC-ND)."
-    },
-    {
-        text: "¿Por qué el freeware (p. ej. Adobe Acrobat Reader) no se considera software libre?",
-        options: [
-            "Porque se distribuye de forma gratuita.",
-            "Porque, aunque es gratuito, su código fuente no está disponible y no se puede modificar, incumpliendo las libertades 1 y 3.",
-            "Porque solo se puede usar durante un tiempo limitado (shareware).",
-            "Porque siempre incluye la licencia GPL."
+        "text": "De las siguientes licencias Creative Commons, ¿cuál es la más restrictiva al limitar más los usos?",
+        "options": [
+            "Atribución (CC BY).",
+            "Atribución-CompartirIgual (CC BY-SA).",
+            "Atribución-NoComercial-SinObraDerivada (CC BY-NC-ND).",
+            "Atribución-NoComercial (CC BY-NC)."
         ],
-        correctAnswer: "Porque, aunque es gratuito, su código fuente no está disponible y no se puede modificar, incumpliendo las libertades 1 y 3."
+        "correctAnswer": "Atribución-NoComercial-SinObraDerivada (CC BY-NC-ND)."
     },
     {
-        text: "¿Cuál es el propósito principal de una Máquina Virtual de Proceso como la JVM?",
-        options: [
-            "Emular un ordenador completo con su propio disco duro, RAM y sistema operativo virtual.",
-            "Proporcionar un entorno de ejecución independiente del hardware y del sistema operativo para aumentar la portabilidad de los programas.",
-            "Traducir directamente el código fuente de Java a código nativo sin pasos intermedios.",
-            "Ayudar a aplicar metodologías ágiles como Scrum o XP."
+        "text": "¿Por qué el freeware (p. ej., un lector de PDF gratuito) no se considera software libre?",
+        "options": [
+            "Porque se distribuye de forma gratuita, mientras que el software libre siempre tiene un coste asociado.",
+            "Porque, aunque gratuito, no se puede modificar ni estudiar su código, incumpliendo libertades esenciales.",
+            "Porque solo se puede usar durante un tiempo limitado o con funciones recortadas (lo que sería shareware).",
+            "Porque el freeware siempre utiliza una licencia de tipo propietario, nunca una licencia como la GPL."
         ],
-        correctAnswer: "Proporcionar un entorno de ejecución independiente del hardware y del sistema operativo para aumentar la portabilidad de los programas."
+        "correctAnswer": "Porque, aunque gratuito, no se puede modificar ni estudiar su código, incumpliendo libertades esenciales."
     },
     {
-        text: "En el proceso de ejecución de un programa Java, ¿qué es el 'bytecode'?",
-        options: [
-            "El código fuente escrito por el programador en un archivo .java.",
-            "Un código binario intermedio, generado por el compilador, que es interpretado por la Máquina Virtual Java (JVM).",
-            "El código nativo final que se ejecuta directamente sobre el hardware del ordenador.",
-            "Una librería de clases que se añade al programa durante el enlazado."
+        "text": "¿Cuál es el propósito principal de una Máquina Virtual de Proceso como la JVM de Java?",
+        "options": [
+            "Emular un ordenador completo, incluyendo su propio sistema operativo, disco duro y memoria RAM virtuales.",
+            "Proporcionar un entorno de ejecución abstracto e independiente de la plataforma para ejecutar un programa.",
+            "Traducir el código fuente de un programa directamente a código nativo sin generar ningún código intermedio.",
+            "Facilitar la aplicación de metodologías ágiles de desarrollo como Scrum o la Programación Extrema (XP)."
         ],
-        correctAnswer: "Un código binario intermedio, generado por el compilador, que es interpretado por la Máquina Virtual Java (JVM)."
+        "correctAnswer": "Proporcionar un entorno de ejecución abstracto e independiente de la plataforma para ejecutar un programa."
     },
     {
-        text: "¿Cómo se diferencia una Máquina Virtual de Sistema (ej. Oracle VirtualBox) de una Máquina Virtual de Proceso (ej. JVM)?",
-        options: [
-            "La de sistema emula un ordenador completo, mientras que la de proceso crea un entorno de ejecución para una sola aplicación.",
-            "La de sistema es solo para ejecutar Java, mientras que la de proceso es para cualquier lenguaje.",
-            "No hay ninguna diferencia, son dos nombres para la misma tecnología.",
-            "La de sistema se sitúa por encima del Sistema Operativo, mientras que la de proceso lo reemplaza."
+        "text": "En el proceso de ejecución de un programa Java, ¿qué es el 'bytecode'?",
+        "options": [
+            "El código fuente que el programador escribe y guarda en un fichero con la extensión .java.",
+            "Un código intermedio y portable generado por el compilador, que luego es interpretado por la JVM.",
+            "El código máquina nativo que se ejecuta directamente sobre el procesador del ordenador anfitrión.",
+            "Una librería de clases estándar que el enlazador añade al programa para crear el ejecutable final."
         ],
-        correctAnswer: "La de sistema emula un ordenador completo, mientras que la de proceso crea un entorno de ejecución para una sola aplicación."
+        "correctAnswer": "Un código intermedio y portable generado por el compilador, que luego es interpretado por la JVM."
     },
     {
-        text: "¿Cuál es la diferencia fundamental entre un ciclo de vida y una metodología de desarrollo?",
-        options: [
-            "El ciclo de vida indica cómo hacer las tareas y la metodología indica qué hay que obtener.",
-            "El ciclo de vida es el modelo general (el qué), mientras que la metodología establece los procedimientos y herramientas concretas (el cómo).",
-            "Las metodologías son siempre ágiles, mientras que los ciclos de vida son siempre en cascada.",
-            "No existe diferencia, ambos términos se usan indistintamente para referirse al mismo concepto."
+        "text": "¿Cómo se diferencia una Máquina Virtual de Sistema (ej. VirtualBox) de una de Proceso (ej. JVM)?",
+        "options": [
+            "La de sistema emula un PC completo; la de proceso crea un entorno de ejecución para una sola aplicación.",
+            "La de sistema solo sirve para ejecutar programas Java, mientras que la de proceso es para cualquier lenguaje.",
+            "No hay ninguna diferencia real, son dos nombres distintos que se refieren exactamente a la misma tecnología.",
+            "La de sistema sustituye al sistema operativo anfitrión, mientras que la de proceso se ejecuta sobre él."
         ],
-        correctAnswer: "El ciclo de vida es el modelo general (el qué), mientras que la metodología establece los procedimientos y herramientas concretas (el cómo)."
+        "correctAnswer": "La de sistema emula un PC completo; la de proceso crea un entorno de ejecución para una sola aplicación."
     },
     {
-        text: "¿Qué son las herramientas CASE (Computer-Aided Software Engineering)?",
-        options: [
-            "Un conjunto de prácticas ágiles como el desarrollo en parejas o las entregas frecuentes.",
-            "Las cuatro libertades fundamentales del software definidas por la FSF.",
-            "Herramientas que permiten automatizar en mayor o menor medida las tareas del desarrollo de software.",
-            "Licencias de software de tipo EULA para productos propietarios."
+        "text": "¿Cuál es la diferencia fundamental entre un ciclo de vida y una metodología de desarrollo?",
+        "options": [
+            "El ciclo de vida indica 'cómo' hacer las tareas y la metodología define 'qué' fases hay que completar.",
+            "El ciclo de vida es el marco general (el 'qué'), y la metodología el conjunto de reglas concretas (el 'cómo').",
+            "Las metodologías son siempre ágiles (ej. Scrum), mientras que los ciclos de vida son siempre tradicionales (ej. cascada).",
+            "Son términos sinónimos; se usan indistintamente para referirse al proceso de creación de software."
         ],
-        correctAnswer: "Herramientas que permiten automatizar en mayor o menor medida las tareas del desarrollo de software."
+        "correctAnswer": "El ciclo de vida es el marco general (el 'qué'), y la metodología el conjunto de reglas concretas (el 'cómo')."
     },
     {
-        text: "¿Cuál de las siguientes es una característica clave de las metodologías ágiles?",
-        options: [
-            "Un enfoque secuencial y rígido donde cada fase se completa antes de pasar a la siguiente.",
-            "La entrega de todo el producto al final de un largo ciclo de desarrollo.",
-            "Un enfoque iterativo e incremental que se centra en la colaboración y la entrega continua de valor al cliente.",
-            "Una gran cantidad de documentación formal y exhaustiva como principal producto entregable."
+        "text": "¿Qué son las herramientas CASE (Ingeniería de Software Asistida por Computadora)?",
+        "options": [
+            "Un conjunto de principios ágiles, como el desarrollo en parejas o las entregas incrementales y frecuentes.",
+            "Las cuatro libertades fundamentales del software, tal y como las definió la Free Software Foundation.",
+            "Aplicaciones informáticas diseñadas para automatizar y apoyar las distintas fases del ciclo de vida del software.",
+            "Un tipo de licencia de software para productos propietarios, también conocida como EULA (End-User License Agreement)."
         ],
-        correctAnswer: "Un enfoque iterativo e incremental que se centra en la colaboración y la entrega continua de valor al cliente."
+        "correctAnswer": "Aplicaciones informáticas diseñadas para automatizar y apoyar las distintas fases del ciclo de vida del software."
     },
     {
-        text: "¿Qué metodología, creada en España, se basa en un modelo en cascada y es ideal para grandes proyectos con un control riguroso?",
-        options: ["RUP.", "Scrum.", "Programación Extrema (XP).", "Métrica."],
-        correctAnswer: "Métrica."
-    },
-    {
-        text: "En la metodología Scrum, ¿qué es un 'sprint'?",
-        options: [
-            "Una reunión diaria para revisar el progreso del equipo.",
-            "Un rol responsable de facilitar el proceso y eliminar obstáculos.",
-            "Un ciclo de trabajo corto (de 2 a 4 semanas) al final del cual se entrega una parte funcional del software.",
-            "El documento donde se priorizan los requisitos del producto."
+        "text": "¿Cuál de las siguientes es una característica clave de las metodologías ágiles?",
+        "options": [
+            "Un enfoque secuencial y rígido, donde cada fase del proyecto se completa antes de pasar a la siguiente.",
+            "La entrega de un producto único y completo al final de un largo ciclo de desarrollo planificado al detalle.",
+            "Un enfoque iterativo e incremental, que valora la colaboración, la flexibilidad y la entrega continua de valor.",
+            "La generación de una gran cantidad de documentación formal y exhaustiva como principal entregable del proyecto."
         ],
-        correctAnswer: "Un ciclo de trabajo corto (de 2 a 4 semanas) al final del cual se entrega una parte funcional del software."
+        "correctAnswer": "Un enfoque iterativo e incremental, que valora la colaboración, la flexibilidad y la entrega continua de valor."
     },
     {
-        text: "¿Cuál de las siguientes prácticas es característica de la Programación Extrema (XP)?",
-        options: [
-            "La creación de un prototipo que evoluciona con el tiempo.",
-            "La realización de un análisis de riesgos al inicio de cada ciclo.",
-            "El desarrollo en parejas, donde dos programadores trabajan juntos en el mismo código.",
-            "La división del proyecto en cuatro fases principales: inicio, elaboración, construcción y transición."
+        "text": "¿Qué metodología tradicional, creada en España, se basa en un modelo en cascada y es usada en la Administración Pública?",
+        "options": [
+            "Rational Unified Process (RUP).",
+            "Scrum.",
+            "Programación Extrema (XP).",
+            "Métrica."
         ],
-        correctAnswer: "El desarrollo en parejas, donde dos programadores trabajan juntos en el mismo código."
+        "correctAnswer": "Métrica."
     },
     {
-        text: "El software que se distribuye gratuitamente para ser probado, pero de forma limitada (en tiempo o funciones) se denomina:",
-        options: ["Freeware.", "Shareware.", "Software de dominio público.", "Software con licencia OEM."],
-        correctAnswer: "Shareware."
-    },
-    {
-        text: "Si un desarrollador toma código con licencia MIT (permisiva) y lo incorpora en un nuevo programa que vende bajo una licencia propietaria, ¿está cumpliendo con la licencia MIT?",
-        options: [
-            "No, porque el software libre nunca puede formar parte de un producto propietario.",
-            "Sí, porque las licencias permisivas como MIT permiten su inclusión en proyectos propietarios.",
-            "No, porque la licencia MIT tiene copyleft y obliga a que los derivados sean libres.",
-            "Solo si paga una tarifa a la Free Software Foundation."
+        "text": "En la metodología Scrum, ¿qué es un 'sprint'?",
+        "options": [
+            "Una breve reunión diaria del equipo de desarrollo para sincronizar el trabajo y reportar impedimentos.",
+            "Un rol del equipo cuya responsabilidad es facilitar el proceso y eliminar cualquier obstáculo que surja.",
+            "Un ciclo de trabajo corto (1-4 semanas) cuyo objetivo es entregar un incremento funcional del producto.",
+            "El documento que contiene la lista priorizada de todos los requisitos y funcionalidades del producto."
         ],
-        correctAnswer: "Sí, porque las licencias permisivas como MIT permiten su inclusión en proyectos propietarios."
+        "correctAnswer": "Un ciclo de trabajo corto (1-4 semanas) cuyo objetivo es entregar un incremento funcional del producto."
     },
     {
-        text: "El famoso axioma de Java 'escríbelo una vez, ejecútalo en cualquier parte' ('Write once, run anywhere') se debe a:",
-        options: [
-            "La simplicidad de su sintaxis, que es fácil de aprender.",
-            "El uso de la Máquina Virtual Java (JVM), que permite que el mismo bytecode se ejecute en distintas plataformas.",
-            "Que su licencia (GPL) permite la distribución ilimitada.",
-            "Su metodología de desarrollo, que es siempre la Programación Extrema (XP)."
+        "text": "¿Cuál de las siguientes prácticas es un pilar fundamental de la Programación Extrema (XP)?",
+        "options": [
+            "La creación de un prototipo inicial que es refinado progresivamente en cada ciclo de desarrollo.",
+            "La realización de un análisis exhaustivo de riesgos al inicio de cada nueva iteración del proyecto.",
+            "El desarrollo en parejas, donde dos programadores comparten un ordenador para escribir y revisar el código.",
+            "La división del proyecto en cuatro fases secuenciales: inicio, elaboración, construcción y transición."
         ],
-        correctAnswer: "El uso de la Máquina Virtual Java (JVM), que permite que el mismo bytecode se ejecute en distintas plataformas."
+        "correctAnswer": "El desarrollo en parejas, donde dos programadores comparten un ordenador para escribir y revisar el código."
+    },
+    {
+        "text": "El software distribuido gratuitamente para su prueba, pero con limitaciones de tiempo o funcionalidad, se denomina:",
+        "options": [
+            "Freeware.",
+            "Shareware.",
+            "Software de dominio público.",
+            "Software con licencia OEM."
+        ],
+        "correctAnswer": "Shareware."
+    },
+    {
+        "text": "Si un desarrollador usa código con licencia MIT (permisiva) en un programa que vende bajo licencia propietaria, ¿actúa correctamente?",
+        "options": [
+            "No, porque el software libre, por definición, nunca puede formar parte de un producto de código cerrado.",
+            "Sí, porque las licencias permisivas como MIT permiten explícitamente su inclusión en proyectos propietarios.",
+            "No, porque la licencia MIT, al ser de código abierto, tiene un efecto 'copyleft' que lo impide.",
+            "Solo si dona un porcentaje de sus beneficios a la Free Software Foundation por el uso del código."
+        ],
+        "correctAnswer": "Sí, porque las licencias permisivas como MIT permiten explícitamente su inclusión en proyectos propietarios."
+    },
+    {
+        "text": "El famoso axioma de Java 'escríbelo una vez, ejecútalo en cualquier parte' se debe principalmente a:",
+        "options": [
+            "La simplicidad y claridad de su sintaxis, que es muy fácil de aprender para los programadores.",
+            "El uso de la Máquina Virtual (JVM), que permite ejecutar el mismo bytecode en múltiples plataformas.",
+            "Su licencia de tipo GPL, que garantiza por contrato la libertad de distribución ilimitada del software.",
+            "Su metodología de desarrollo asociada, que obliga a seguir prácticas de programación muy portables."
+        ],
+        "correctAnswer": "El uso de la Máquina Virtual (JVM), que permite ejecutar el mismo bytecode en múltiples plataformas."
     }
-];
+],
+            "Bloque 2: Herramientas y Fundamentos": [
+                {
+                    text: "¿Cuál es la definición de un Entorno de Desarrollo Integrado (IDE)?",
+                    options: [
+                        "Un lenguaje de programación de alto nivel para servidores.",
+                        "Un sistema operativo optimizado para tareas de desarrollo.",
+                        "Un programa que integra herramientas para codificar y probar software.",
+                        "Una herramienta usada exclusivamente para escribir código fuente."
+                    ],
+                    correctAnswer: "Un programa que integra herramientas para codificar y probar software."
+                },
+                {
+                    text: "¿Cuál es el propósito principal de la herramienta PSeInt?",
+                    options: [
+                        "Compilar aplicaciones profesionales para la venta comercial.",
+                        "Facilitar el aprendizaje de la programación mediante pseudocódigo.",
+                        "Diseñar interfaces gráficas de usuario de forma visual.",
+                        "Administrar el control de versiones de un proyecto grande."
+                    ],
+                    correctAnswer: "Facilitar el aprendizaje de la programación mediante pseudocódigo."
+                },
+                {
+                    text: "Según el texto, ¿cuál de las siguientes es una característica fundamental de todo algoritmo?",
+                    options: [
+                        "Debe ser ambiguo para permitir múltiples soluciones.",
+                        "Debe depender de un lenguaje de programación concreto.",
+                        "Debe ser infinito para manejar cualquier tipo de problema.",
+                        "Debe ser finito, preciso y definido en sus pasos."
+                    ],
+                    correctAnswer: "Debe ser finito, preciso y definido en sus pasos."
+                },
+                {
+                    text: "¿En PSeInt, qué tipo de dato se debe utilizar para una variable que almacenará el valor `verdadero` o `falso`?",
+                    options: ["Entero.", "Carácter.", "Lógico.", "Cadena."],
+                    correctAnswer: "Lógico."
+                },
+                {
+                    text: "¿Qué componente de un IDE permite ejecutar un programa paso a paso para encontrar errores?",
+                    options: ["El editor de texto.", "El enlazador.", "El depurador (debugger).", "El generador de documentación."],
+                    correctAnswer: "El depurador (debugger)."
+                },
+                {
+                    text: "¿Qué permiten las \"extensiones\" o \"plugins\" en Visual Studio Code?",
+                    options: [
+                        "Modificar únicamente los temas de color de la interfaz de usuario.",
+                        "Añadir funcionalidades y soporte para nuevas herramientas o lenguajes.",
+                        "Comprar una licencia de uso para la versión profesional del editor.",
+                        "Sincronizar la configuración del editor con otros dispositivos."
+                    ],
+                    correctAnswer: "Añadir funcionalidades y soporte para nuevas herramientas o lenguajes."
+                },
+                {
+                    text: "En la sintaxis de PSeInt, ¿cuál es la forma correcta de asignar un valor a una variable?",
+                    options: ["<variable> == <expresión>", "Definir <variable> como <expresión>", "Leer <variable> desde <expresión>", "<variable> <- <expresión>"],
+                    correctAnswer: "<variable> <- <expresión>"
+                },
+                {
+                    text: "Para poder compilar programas en C/C++ en VSC sobre Windows, ¿qué se debe instalar según la guía?",
+                    options: [
+                        "La última versión del sistema operativo Windows 11.",
+                        "Un paquete de idioma para traducir los mensajes de error.",
+                        "Un compilador y depurador, como los que provee MinGW-w64.",
+                        "Una extensión para la edición de pseudocódigo en español."
+                    ],
+                    correctAnswer: "Un compilador y depurador, como los que provee MinGW-w64."
+                },
+                {
+                    text: "¿Cuál de las siguientes es una regla válida para nombrar identificadores en PSeInt?",
+                    options: [
+                        "Pueden empezar con un número para mayor flexibilidad.",
+                        "Deben empezar con una letra y no pueden contener espacios ni tildes.",
+                        "Deben incluir al menos un carácter especial para ser válidos.",
+                        "No tienen restricciones de caracteres, permitiendo el uso de la 'ñ'."
+                    ],
+                    correctAnswer: "Deben empezar con una letra y no pueden contener espacios ni tildes."
+                },
+                {
+                    text: "¿Qué estructura repetitiva evalúa la condición al inicio del bucle y solo se ejecuta si esta es verdadera?",
+                    options: ["Repetir... Hasta Que", "Mientras", "Según", "Para"],
+                    correctAnswer: "Mientras"
+                },
+                {
+                    text: "¿Cuál es la función principal del \"Control de Versiones\"?",
+                    options: [
+                        "Corregir de forma automática los errores de sintaxis en el código.",
+                        "Gestionar los cambios y las distintas versiones de los ficheros de un proyecto.",
+                        "Traducir el código fuente a código objeto para su posterior enlace.",
+                        "Generar la documentación técnica del programa a partir de comentarios."
+                    ],
+                    correctAnswer: "Gestionar los cambios y las distintas versiones de los ficheros de un proyecto."
+                },
+                {
+                    text: "En un diagrama de flujo, ¿qué símbolo se utiliza para representar una decisión?",
+                    options: ["Un rectángulo (Proceso).", "Un rombo (Decisión).", "Un paralelogramo (Entrada / Salida).", "Un óvalo (Inicio / Final)."],
+                    correctAnswer: "Un rombo (Decisión)."
+                },
+                {
+                    text: "Durante la instalación de VSC, ¿para qué sirve marcar la opción \"Agregar a PATH\"?",
+                    options: [
+                        "Para instalar un conjunto de temas de color populares por defecto.",
+                        "Para asociar VSC con los tipos de archivo más comunes.",
+                        "Para poder ejecutar el editor desde la línea de comandos.",
+                        "Para crear un acceso directo en el escritorio automáticamente."
+                    ],
+                    correctAnswer: "Para poder ejecutar el editor desde la línea de comandos."
+                },
+                {
+                    text: "¿Qué es la función \"IntelliSense\" de Visual Studio Code?",
+                    options: [
+                        "El nombre del terminal integrado que permite ejecutar comandos.",
+                        "La vista del editor donde se gestionan e instalan las extensiones.",
+                        "Una ayuda que ofrece sugerencias para autocompletar el código.",
+                        "El soporte integrado para el sistema de control de versiones Git."
+                    ],
+                    correctAnswer: "Una ayuda que ofrece sugerencias para autocompletar el código."
+                },
+                {
+                    text: "¿Qué estructura repetitiva ejecuta su bloque de código al menos una vez, evaluando la condición al final?",
+                    options: ["La estructura `Mientras`.", "La estructura `Para`.", "La estructura `Repetir... Hasta Que`.", "La estructura `Si... Entonces`."],
+                    correctAnswer: "La estructura `Repetir... Hasta Que`."
+                }
+            ]
+        };
 
-        // 2. REFERENCIAS A ELEMENTOS HTML
+        const selectionContainer = document.getElementById('selection-container');
+        const blockButtonsContainer = document.getElementById('block-buttons');
+        const mixedTestButton = document.getElementById('mixed-test-button');
+        const quizContainer = document.getElementById('quiz-container');
         const questionWrapper = document.getElementById('question-wrapper');
         const questionText = document.getElementById('question-text');
         const progressText = document.getElementById('progress-text');
-        const answerButtons = Array.from(document.querySelectorAll('.btn-option'));
+        
+        // --- LÍNEA CORREGIDA ---
+        // Ahora solo selecciona los botones (.btn) que están DENTRO de #answer-buttons
+        const answerButtons = Array.from(document.querySelectorAll('#answer-buttons .btn'));
+        
         const nextButton = document.getElementById('next-button');
         const scoreContainer = document.getElementById('score-container');
         const scoreText = document.getElementById('score-text');
         const restartButton = document.getElementById('restart-button');
         
-        // 3. VARIABLES DE ESTADO DEL QUIZ
-        let shuffledQuestions = [];
+        let questionsForCurrentQuiz = [];
         let currentQuestionIndex = 0;
         let score = 0;
-
-        // 4. FUNCIONES PRINCIPALES
         
-        function startQuiz() {
-            // Reiniciar estado
+        function showBlockSelection() {
+            blockButtonsContainer.innerHTML = ''; 
+
+            Object.keys(allQuestionsByBlock).forEach(blockName => {
+                const button = document.createElement('button');
+                button.innerText = blockName;
+                button.classList.add('btn');
+                button.addEventListener('click', () => startQuiz(allQuestionsByBlock[blockName]));
+                blockButtonsContainer.appendChild(button);
+            });
+            
+            selectionContainer.classList.remove('hidden');
+            quizContainer.classList.add('hidden');
+            scoreContainer.classList.add('hidden');
+        }
+
+        function startQuiz(questionsArray) {
             score = 0;
             currentQuestionIndex = 0;
-            // Barajar preguntas para que cada test sea diferente
-            shuffledQuestions = [...allQuestions].sort(() => Math.random() - 0.5);
+            questionsForCurrentQuiz = [...questionsArray].sort(() => Math.random() - 0.5);
             
-            // Mostrar la UI del quiz y ocultar la de la puntuación
-            scoreContainer.classList.add('hidden');
+            selectionContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
             questionWrapper.classList.remove('hidden');
+            scoreContainer.classList.add('hidden');
             
             showNextQuestion();
         }
 
         function showNextQuestion() {
             resetState();
-            if (currentQuestionIndex < shuffledQuestions.length) {
-                const question = shuffledQuestions[currentQuestionIndex];
+            if (currentQuestionIndex < questionsForCurrentQuiz.length) {
+                const question = questionsForCurrentQuiz[currentQuestionIndex];
                 questionText.innerText = question.text;
-                progressText.innerText = `Pregunta ${currentQuestionIndex + 1} / ${shuffledQuestions.length}`;
+                progressText.innerText = `Pregunta ${currentQuestionIndex + 1} / ${questionsForCurrentQuiz.length}`;
 
-                // Barajar opciones de respuesta
                 const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
 
                 answerButtons.forEach((button, index) => {
@@ -661,9 +866,8 @@ const allQuestions = [
         function selectAnswer(e) {
             const selectedButton = e.target;
             const selectedAnswer = selectedButton.innerText;
-            const correctAnswer = shuffledQuestions[currentQuestionIndex].correctAnswer;
+            const correctAnswer = questionsForCurrentQuiz[currentQuestionIndex].correctAnswer;
 
-            // Deshabilitar todos los botones para evitar múltiples respuestas
             answerButtons.forEach(button => {
                 button.classList.add('disabled');
                 button.removeEventListener('click', selectAnswer);
@@ -674,14 +878,12 @@ const allQuestions = [
                 selectedButton.classList.add('correct');
             } else {
                 selectedButton.classList.add('incorrect');
-                // Marcar también la correcta en verde
                 answerButtons.forEach(button => {
                     if (button.innerText === correctAnswer) {
                         button.classList.add('correct');
                     }
                 });
             }
-            // Mostrar el botón de siguiente
             nextButton.classList.remove('hidden');
         }
         
@@ -695,19 +897,22 @@ const allQuestions = [
         function showFinalScore() {
             questionWrapper.classList.add('hidden');
             scoreContainer.classList.remove('hidden');
-            scoreText.innerText = `Puntuación Final: ${score} de ${shuffledQuestions.length} aciertos.`;
+            scoreText.innerText = `Puntuación Final: ${score} de ${questionsForCurrentQuiz.length} aciertos.`;
         }
         
-        // 5. EVENT LISTENERS PARA BOTONES
+        mixedTestButton.addEventListener('click', () => {
+            const allQuestionsList = Object.values(allQuestionsByBlock).flat();
+            startQuiz(allQuestionsList);
+        });
+
         nextButton.addEventListener('click', () => {
             currentQuestionIndex++;
             showNextQuestion();
         });
         
-        restartButton.addEventListener('click', startQuiz);
+        restartButton.addEventListener('click', showBlockSelection);
 
-        // 6. INICIAR EL QUIZ AL CARGAR LA PÁGINA
-        startQuiz();
+        showBlockSelection();
 
     </script>
 </body>
